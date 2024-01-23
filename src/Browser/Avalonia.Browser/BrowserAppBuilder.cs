@@ -1,12 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Browser.Interop;
 using Avalonia.Metadata;
 
 namespace Avalonia.Browser;
 
-public class BrowserPlatformOptions
+public enum BrowserRenderingMode
 {
+    Software2D = 1,
+    WebGL1,
+    WebGL2,
+
+    OffscreenSoftware2D,
+    OffscreenWebGL2
+}
+
+public record BrowserPlatformOptions
+{
+    /// <summary>
+    /// Gets or sets Avalonia rendering modes with fallbacks.
+    /// The first element in the array has the highest priority.
+    /// </summary>
+    /// <exception cref="System.InvalidOperationException">Thrown if no values were matched.</exception>
+    public IReadOnlyList<BrowserRenderingMode> RenderingMode { get; set; } = new[]
+    {
+        BrowserRenderingMode.OffscreenWebGL2, BrowserRenderingMode.WebGL2, BrowserRenderingMode.WebGL1, BrowserRenderingMode.Software2D
+    };
+
     /// <summary>
     /// Defines paths where avalonia modules and service locator should be resolved.
     /// If null, default path resolved depending on the backend (browser or blazor) is used.
@@ -26,7 +47,7 @@ public class BrowserPlatformOptions
     /// By default, current domain root is used as a scope.
     /// </summary>
     public string? AvaloniaServiceWorkerScope { get; set; }
-    
+
     /// <summary>
     /// Avalonia uses "native-file-system-adapter" polyfill for the file dialogs.
     /// If native implementation is available, by default it is used.
@@ -75,7 +96,7 @@ public static class BrowserAppBuilder
     {
         builder = await PreSetupBrowser(builder, options);
 
-        var lifetime = new BrowserSingleViewLifetime();
+        var lifetime = new BrowserActivatableLifetime();
         builder
             .SetupWithLifetime(lifetime);
     }
@@ -96,7 +117,7 @@ public static class BrowserAppBuilder
 
         return builder;
     }
-    
+
     public static AppBuilder UseBrowser(
         this AppBuilder builder)
     {

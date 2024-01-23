@@ -8,6 +8,9 @@ internal static partial class DomHelper
     [JSImport("globalThis.document.getElementById")]
     internal static partial JSObject? GetElementById(string id);
 
+    [JSImport("AvaloniaDOM.getFirstElementByClassName", AvaloniaModule.MainModuleName)]
+    internal static partial JSObject? GetElementsByClassName(string className, JSObject? parent);
+
     [JSImport("AvaloniaDOM.createAvaloniaHost", AvaloniaModule.MainModuleName)]
     public static partial JSObject CreateAvaloniaHost(JSObject element);
 
@@ -22,12 +25,6 @@ internal static partial class DomHelper
 
     [JSImport("AvaloniaDOM.addClass", AvaloniaModule.MainModuleName)]
     public static partial void AddCssClass(JSObject element, string className);
-
-    [JSImport("ResizeHandler.observeSize", AvaloniaModule.MainModuleName)]
-    public static partial void ObserveSize(
-        JSObject canvas,
-        [JSMarshalAs<JSType.Function<JSType.Number, JSType.Number, JSType.Number>>]
-        Action<double, double, double> onSizeOrDpiChanged);
 
     [JSImport("AvaloniaDOM.observeDarkMode", AvaloniaModule.MainModuleName)]
     public static partial JSObject ObserveDarkMode(

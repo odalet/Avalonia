@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using Avalonia.Browser.Interop;
 using Avalonia.Browser.Skia;
 using Avalonia.Browser.Storage;
 using Avalonia.Controls;
@@ -14,7 +15,9 @@ using Avalonia.Input.Raw;
 using Avalonia.Input.TextInput;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Rendering;
 using Avalonia.Rendering.Composition;
+using Avalonia.Threading;
 
 [assembly: SupportedOSPlatform("browser")]
 
@@ -22,64 +25,54 @@ namespace Avalonia.Browser
 {
     internal class BrowserTopLevelImpl : ITopLevelImpl
     {
-        private Size _clientSize;
         private IInputRoot? _inputRoot;
         private readonly Stopwatch _sw = Stopwatch.StartNew();
-        private readonly AvaloniaView _avaloniaView;
         private readonly TouchDevice _touchDevice;
         private readonly PenDevice _penDevice;
+        private BrowserSurface? _surface;
         private string _currentCursor = CssCursor.Default;
         private readonly INativeControlHostImpl _nativeControlHost;
         private readonly IStorageProvider _storageProvider;
         private readonly ISystemNavigationManagerImpl _systemNavigationManager;
         private readonly ClipboardImpl _clipboard;
-        private readonly IInsetsManager? _insetsManager;
+        private readonly IInsetsManager _insetsManager;
         private readonly IInputPane _inputPane;
+        private readonly ITextInputMethodImpl _textInputMethodImpl;
 
-        public BrowserTopLevelImpl(AvaloniaView avaloniaView, JSObject container)
+        public BrowserTopLevelImpl(JSObject container, JSObject nativeControlHost, ITextInputMethodImpl textInputMethodImpl)
         {
+            _textInputMethodImpl = textInputMethodImpl;
             Surfaces = Enumerable.Empty<object>();
-            _avaloniaView = avaloniaView;
             AcrylicCompensationLevels = new AcrylicPlatformCompensationLevels(1, 1, 1);
             _touchDevice = new TouchDevice();
             _penDevice = new PenDevice();
 
             _insetsManager = new BrowserInsetsManager();
-            _nativeControlHost = _avaloniaView.GetNativeControlHostImpl();
+            _nativeControlHost = new BrowserNativeControlHost(nativeControlHost);
             _storageProvider = new BrowserStorageProvider();
             _systemNavigationManager = new BrowserSystemNavigationManagerImpl();
             _clipboard = new ClipboardImpl();
             _inputPane = new BrowserInputPane(container);
+
+            _surface = BrowserSurface.Create(container, PixelFormats.Rgba8888, OnSizeChanged, OnScalingChanged);
+            Surfaces = new[] { _surface };
+            Compositor = new Compositor(
+                new RenderLoop(_surface),
+                _surface.IsWebGl ? AvaloniaLocator.Current.GetRequiredService<IPlatformGraphics>() : null);
         }
 
         public ulong Timestamp => (ulong)_sw.ElapsedMilliseconds;
 
-        public void SetClientSize(Size newSize, double dpi)
+        private void OnScalingChanged(BrowserSurface surface)
         {
-            if (Math.Abs(RenderScaling - dpi) > 0.0001)
-            {
-                if (Surfaces.FirstOrDefault() is BrowserSkiaSurface surface)
-                {
-                    surface.Scaling = dpi;
-                }
-                
-                ScalingChanged?.Invoke(dpi);
-            }
+            ScalingChanged?.Invoke(surface.Scaling);
+        }
 
-            if (newSize != _clientSize)
-            {
-                _clientSize = newSize;
+        private void OnSizeChanged(BrowserSurface surface)
+        {
+            Resized?.Invoke(surface.ClientSize, WindowResizeReason.User);
 
-                if (Surfaces.FirstOrDefault() is BrowserSkiaSurface surface)
-                {
-                    surface.Size = new PixelSize((int)newSize.Width, (int)newSize.Height);
-                    surface.DisplaySize = newSize;
-                }
-
-                Resized?.Invoke(newSize, WindowResizeReason.User);
-
-                (_insetsManager as BrowserInsetsManager)?.NotifySafeAreaPaddingChanged();
-            }
+            (_insetsManager as BrowserInsetsManager)?.NotifySafeAreaPaddingChanged();
         }
 
         public bool RawPointerEvent(
@@ -183,15 +176,11 @@ namespace Avalonia.Browser
 
         public void Dispose()
         {
-
+            _surface?.Dispose();
+            _surface = null;
         }
 
-        public Compositor Compositor { get; } = new(AvaloniaLocator.Current.GetRequiredService<IPlatformGraphics>());
-
-        public void Invalidate(Rect rect)
-        {
-            //Console.WriteLine("invalidate rect called");
-        }
+        public Compositor Compositor { get; }
 
         public void SetInputRoot(IInputRoot inputRoot)
         {
@@ -221,9 +210,9 @@ namespace Avalonia.Browser
         {
         }
 
-        public Size ClientSize => _clientSize;
+        public Size ClientSize => _surface?.ClientSize ?? new Size(1, 1);
         public Size? FrameSize => null;
-        public double RenderScaling => (Surfaces.FirstOrDefault() as BrowserSkiaSurface)?.Scaling ?? 1;
+        public double RenderScaling => _surface?.Scaling ?? 1;
 
         public IEnumerable<object> Surfaces { get; set; }
 
@@ -255,7 +244,7 @@ namespace Avalonia.Browser
 
             if (featureType == typeof(ITextInputMethodImpl))
             {
-                return _avaloniaView;
+                return _textInputMethodImpl;
             }
 
             if (featureType == typeof(ISystemNavigationManagerImpl))

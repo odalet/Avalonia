@@ -1,4 +1,4 @@
-// See https://raw.githubusercontent.com/dotnet/runtime/main/src/mono/wasm/runtime/dotnet.d.ts
+// See https://raw.githubusercontent.com/dotnet/runtime/v7.0.15/src/mono/wasm/runtime/dotnet.d.ts
 
 //! Licensed to the .NET Foundation under one or more agreements.
 //! The .NET Foundation licenses this file to you under the MIT license.
@@ -228,7 +228,6 @@ declare type RuntimeAPI = {
     runtimeId: number;
     runtimeBuildInfo: {
         productVersion: string;
-        gitHash: string;
         buildConfiguration: string;
     };
 } & APIType;
@@ -239,16 +238,11 @@ declare type ModuleAPI = {
 declare function createDotnetRuntime(moduleFactory: DotnetModuleConfig | ((api: RuntimeAPI) => DotnetModuleConfig)): Promise<RuntimeAPI>;
 declare type CreateDotnetRuntimeType = typeof createDotnetRuntime;
 
-declare global {
-    function getDotnetRuntime(runtimeId: number): RuntimeAPI | undefined;
+interface IDisposable {
+    dispose(): void;
+    get isDisposed(): boolean;
 }
-
-declare const dotnet: ModuleAPI["dotnet"];
-declare const exit: ModuleAPI["exit"];
-
-export { CreateDotnetRuntimeType, DotnetModuleConfig, EmscriptenModule, ModuleAPI, MonoConfig, RuntimeAPI, createDotnetRuntime as default, dotnet, exit };
-
-export interface IMemoryView {
+interface IMemoryView extends IDisposable {
     /**
      * copies elements from provided source to the wasm memory.
      * target has to have the elements of the same type as the underlying C# array.
@@ -264,7 +258,15 @@ export interface IMemoryView {
      * same as TypedArray.slice()
      */
     slice(start?: number, end?: number): TypedArray;
-
     get length(): number;
     get byteLength(): number;
 }
+
+declare global {
+    function getDotnetRuntime(runtimeId: number): RuntimeAPI | undefined;
+}
+
+declare const dotnet: ModuleAPI["dotnet"];
+declare const exit: ModuleAPI["exit"];
+
+export { CreateDotnetRuntimeType, DotnetModuleConfig, EmscriptenModule, IMemoryView, ModuleAPI, MonoConfig, RuntimeAPI, createDotnetRuntime as default, dotnet, exit };

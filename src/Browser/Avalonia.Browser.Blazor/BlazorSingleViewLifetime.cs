@@ -22,7 +22,7 @@ public static class BlazorAppBuilder
         builder.SetupWithLifetime(new BlazorSingleViewLifetime());
     }
 
-    internal class BlazorSingleViewLifetime : ISingleViewApplicationLifetime
+    internal class BlazorSingleViewLifetime : BrowserActivatableLifetime, ISingleViewApplicationLifetime
     {
         public Control? MainView { get; set; }
     }

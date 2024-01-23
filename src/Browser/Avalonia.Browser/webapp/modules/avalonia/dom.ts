@@ -1,3 +1,4 @@
+
 export class AvaloniaDOM {
     public static addClass(element: HTMLElement, className: string): void {
         element.classList.add(className);
@@ -24,27 +25,48 @@ export class AvaloniaDOM {
         };
     }
 
-    static createAvaloniaHost(host: HTMLElement) {
-        const randomIdPart = Math.random().toString(36).replace(/[^a-z]+/g, "").substr(2, 10);
+    static getFirstElementByClassName(className: string, parent?: HTMLElement): Element | null {
+        const elements = (parent ?? globalThis.document).getElementsByClassName(className);
+        return elements ? elements[0] : null;
+    }
 
-        // Root element
-        host.classList.add("avalonia-container");
-        host.tabIndex = 0;
-        host.oncontextmenu = function () { return false; };
-        host.style.overflow = "hidden";
-        host.style.touchAction = "none";
+    static createAvaloniaCanvas(host: HTMLElement): HTMLCanvasElement {
+        const containerId = host.getAttribute("data-containerId") ?? "0000";
 
-        // Rendering target canvas
         const canvas = document.createElement("canvas");
-        canvas.id = `canvas${randomIdPart}`;
+        canvas.id = `canvas${containerId}`;
         canvas.classList.add("avalonia-canvas");
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.style.position = "absolute";
 
+        return canvas;
+    }
+
+    static attachCanvas(host: HTMLElement, canvas: HTMLCanvasElement): void {
+        host.prepend(canvas);
+    }
+
+    static detachCanvas(host: HTMLElement, canvas: HTMLCanvasElement): void {
+        host.removeChild(canvas);
+    }
+
+    static createAvaloniaHost(host: HTMLElement) {
+        const containerId = Math.random().toString(36).replace(/[^a-z]+/g, "").substr(2, 10);
+
+        // Root element
+        host.classList.add("avalonia-container");
+        host.tabIndex = 0;
+        host.setAttribute("data-containerId", containerId);
+        host.oncontextmenu = function () { return false; };
+        host.style.overflow = "hidden";
+        host.style.touchAction = "none";
+
+        // Canvas is lazily created depending on the rendering mode. See createAvaloniaCanvas usage.
+
         // Native controls host
         const nativeHost = document.createElement("div");
-        nativeHost.id = `nativeHost${randomIdPart}`;
+        nativeHost.id = `nativeHost${containerId}`;
         nativeHost.classList.add("avalonia-native-host");
         nativeHost.style.left = "0px";
         nativeHost.style.top = "0px";
@@ -54,7 +76,7 @@ export class AvaloniaDOM {
 
         // IME
         const inputElement = document.createElement("input");
-        inputElement.id = `inputElement${randomIdPart}`;
+        inputElement.id = `inputElement${containerId}`;
         inputElement.classList.add("avalonia-input-element");
         inputElement.autocapitalize = "none";
         inputElement.type = "text";
@@ -76,11 +98,9 @@ export class AvaloniaDOM {
 
         host.prepend(inputElement);
         host.prepend(nativeHost);
-        host.prepend(canvas);
 
         return {
             host,
-            canvas,
             nativeHost,
             inputElement
         };

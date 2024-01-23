@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>$(AvsCurrentBrowserTargetFramework)</TargetFramework>
+    <TargetFramework>net8.0-browser</TargetFramework>
+    <WasmEnableThreads>true</WasmEnableThreads>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <WasmMainJSPath>AppBundle/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>

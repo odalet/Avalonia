@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
+using Avalonia.Logging;
 
 namespace Avalonia.Browser.Interop;
 
@@ -29,6 +30,12 @@ internal static partial class AvaloniaModule
     {
         var options = AvaloniaLocator.Current.GetService<BrowserPlatformOptions>() ?? new BrowserPlatformOptions();
         return options.FrameworkAssetPathResolver!("sw.js");
+    }
+
+    [JSExport]
+    public static void Log(int logLevel, string message)
+    {
+        Logger.TryGet((LogEventLevel)logLevel, LogArea.BrowserPlatform)?.Log(null, message);
     }
 
     [JSImport("Caniuse.isMobile", AvaloniaModule.MainModuleName)]
