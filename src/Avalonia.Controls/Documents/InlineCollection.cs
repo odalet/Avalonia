@@ -162,6 +162,8 @@ namespace Avalonia.Controls.Documents
         {
             foreach (var child in this)
             {
+                child.InlineHost = newValue;
+
                 if (child is not InlineUIContainer container)
                 {
                     continue;
