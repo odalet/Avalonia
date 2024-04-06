@@ -71,7 +71,7 @@ namespace Avalonia.Markup.UnitTests.Parsers
             var data = new Class1();
             data.SetValue(Owner.SomethingProperty, new Class1() { Next = expected });
 
-            var target = Build(data, "((Class1)(Owner.Something)).Next", typeResolver: (ns, name) => name == "Class1" ? typeof(Class1) : _typeResolver(ns, name));
+            var target = ExpressionObserverBuilder.Build(data, "((Class1)(Owner.Something)).Next", typeResolver: (ns, name) => name == "Class1" ? typeof(Class1) : _typeResolver(ns, name));
             var result = await target.Take(1);
 
             Assert.Equal(expected, result);
