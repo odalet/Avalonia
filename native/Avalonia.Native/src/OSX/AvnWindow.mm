@@ -238,6 +238,8 @@
 
 -(BOOL)canBecomeKeyWindow
 {
+    return true; // THIS HELPS, but breaks everything else.
+
     if(_canBecomeKeyWindow && !_closed)
     {
         // If the window has a child window being shown as a dialog then don't allow it to become the key window.
