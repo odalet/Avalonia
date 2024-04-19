@@ -139,6 +139,10 @@ namespace ControlCatalog.NetCore
                 {
                     UseRegionDirtyRectClipping = true
                 })
+                .With(new AvaloniaNativePlatformOptions
+                {
+                    AvaloniaNativeLibraryPath = "/Users/maxkatz6/Library/Developer/Xcode/DerivedData/Avalonia.Native.OSX-bqmvvyrkwxumoraoyoinxeraehru/Build/Products/Debug/libAvalonia.Native.OSX.dylib"
+                })
                 .UseSkia()
                 .WithInterFont()
                 .AfterSetup(builder =>

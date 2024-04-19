@@ -4,7 +4,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 
 using ControlCatalog.Pages;
-
+using MonoMac.AppKit;
 using MonoMac.Foundation;
 using MonoMac.WebKit;
 
@@ -18,12 +18,7 @@ public class EmbedSampleMac : INativeDemoControl
         // It shouldn't be used in production apps
         MacHelper.EnsureInitialized();
 
-        var webView = new WebView();
-        Dispatcher.UIThread.Post(() =>
-        {
-            webView.MainFrame.LoadRequest(new NSUrlRequest(new NSUrl(
-                isSecond ? "https://bing.com" : "https://google.com/")));
-        });
-        return new MacOSViewHandle(webView);
+        var edit = new NSTextField();
+        return new MacOSViewHandle(edit);
     }
 }

@@ -4,6 +4,17 @@
              xmlns:local="using:SingleProjectSandbox"
              x:DataType="local:MainView">
   <StackPanel Margin="100 50" Spacing="50">
+    <Button Content="popup">
+      <Button.Flyout>
+        <Flyout>
+          <StackPanel Spacing="20">
+            <local:NativeControlHostDemo Width="100" Height="20" />
+            <TextBox Width="100" Height="20" />
+          </StackPanel>
+        </Flyout>
+      </Button.Flyout>
+    </Button>
+    <local:NativeControlHostDemo Width="100" Height="20" />
     <TextBlock Text="Login" Foreground="White" />
     <TextBox TextInputOptions.Multiline="True" AcceptsReturn="True" Watermark="Text" Height="200" TextWrapping="Wrap"/>
     <TextBox Watermark="Username" TextInputOptions.ContentType="Email" TextInputOptions.ReturnKeyType="Done" />

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:pages="clr-namespace:ControlCatalog.Pages"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="700"
              x:Class="ControlCatalog.Pages.FlyoutsPage">
 
@@ -16,14 +17,10 @@
             <MenuItem Header="Item 3" />
         </MenuFlyout>
         <Flyout Placement="Bottom" x:Key="BasicFlyout">
-            <Flyout.FlyoutPresenterTheme>
-                <ControlTheme TargetType="FlyoutPresenter" BasedOn="{StaticResource {x:Type FlyoutPresenter}}">
-                    <Setter Property="CornerRadius" Value="20" />
-                </ControlTheme>
-            </Flyout.FlyoutPresenterTheme>
-            <Panel Width="100" Height="100">
-                <TextBlock Text="Flyout Content with a custom presenter theme!" TextWrapping="Wrap" />
-            </Panel>
+            <StackPanel Spacing="20">
+              <pages:EmbedSample Height="25"/>
+              <TextBox Height="25" />
+            </StackPanel>
         </Flyout>
     </UserControl.Resources>
 
