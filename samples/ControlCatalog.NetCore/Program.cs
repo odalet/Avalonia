@@ -136,12 +136,12 @@ namespace ControlCatalog.NetCore
                     UseDBusMenu = true,
                     EnableIme = true,
                     RenderingMode = new[] { X11RenderingMode.Glx },
-                    GlProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 2, compatibilityProfile: true) }
+                    GlProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 2, isCompatibilityProfile: true) }
                 })
                 .With(new Win32PlatformOptions
                 {
                     RenderingMode = new[] { Win32RenderingMode.Wgl },
-                    WglProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 6, compatibilityProfile: true) }
+                    WglProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 6, isCompatibilityProfile: true) }
                 })
                 .With(new VulkanOptions
                 {

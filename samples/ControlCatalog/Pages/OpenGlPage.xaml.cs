@@ -253,14 +253,10 @@ namespace ControlCatalog.Pages
         {
             CheckError(GL);
 
-            GL.GetIntegerv(GL_CONTEXT_PROFILE_MASK, out var profileMask);
-            var profile = "None";
-            if ((profileMask & GL_CONTEXT_CORE_PROFILE_BIT) == GL_CONTEXT_CORE_PROFILE_BIT)
-                profile = "Core";
-            if ((profileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
-                profile = "Compatibility";
+            static string format(GlInterface.GlContextInfo info) => 
+                $"{info.Version.Major}.{info.Version.Minor}{(info.Version.IsCompatibilityProfile ? " Compatibility profile" : "")}";
 
-            Info = $"Renderer: {GL.GetString(GL_RENDERER)} Version: {GL.GetString(GL_VERSION)} Profile: {profile}";
+            Info = $"Renderer: {GL.GetString(GL_RENDERER)} Version: {GL.GetString(GL_VERSION)} - [{format(GL.ContextInfo)}]";
             
             // Load the source of the vertex shader and compile it.
             _vertexShader = GL.CreateShader(GL_VERTEX_SHADER);
