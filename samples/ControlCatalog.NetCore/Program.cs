@@ -11,6 +11,7 @@ using Avalonia.Fonts.Inter;
 using Avalonia.Headless;
 using Avalonia.LinuxFramebuffer.Output;
 using Avalonia.LogicalTree;
+using Avalonia.OpenGL;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.Vulkan;
@@ -134,8 +135,14 @@ namespace ControlCatalog.NetCore
                     EnableMultiTouch = true,
                     UseDBusMenu = true,
                     EnableIme = true,
+                    RenderingMode = new[] { X11RenderingMode.Glx },
+                    GlProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 2, compatibilityProfile: true) }
                 })
-
+                .With(new Win32PlatformOptions
+                {
+                    RenderingMode = new[] { Win32RenderingMode.Wgl },
+                    WglProfiles = new[] { new GlVersion(GlProfileType.OpenGL, 4, 6, compatibilityProfile: true) }
+                })
                 .With(new VulkanOptions
                 {
                     VulkanInstanceCreationOptions = new ()

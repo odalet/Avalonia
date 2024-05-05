@@ -10,6 +10,13 @@
     "VNC": {
       "commandName": "Project",
       "commandLineArgs": "--vnc"
+    },
+    "WSL (NVIDIA)": {
+      "commandName": "WSL2",
+      "distributionName": "",
+      "environmentVariables": {
+        "MESA_D3D12_DEFAULT_ADAPTER_NAME": "NVIDIA"
+      }
     }
   }
 }
